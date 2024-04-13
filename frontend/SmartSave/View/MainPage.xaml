@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:SmartSave.Model"
+			 xmlns:mainviewmodel="clr-namespace:SmartSave.ViewModel"
+			 x:DataType="mainviewmodel:MainViewModel"
+			 Title="{Binding Title}" 
+             x:Class="SmartSave.View.MainPage"
+			 BackgroundColor="#F5F5F6">
+    
+    <!-- Crear un grid con 2 filas y 2 columnas -->
+    <Grid RowDefinitions="*,auto" 
+          ColumnDefinitions=".50*,.50*"
+          Padding="10"
+          RowSpacing="15"
+          ColumnSpacing="7">
+
+        <!-- Crear un collectionvie para cada fila y la primera columna -->
+		<CollectionView Grid.Row="0" Grid.Column="0" ItemsSource="{Binding DatapvpcAM}">
+			<CollectionView.ItemTemplate>
+				<DataTemplate x:DataType="model:Datapvpc">
+					<Grid Padding="1.7">
+						<Frame HeightRequest="50" Padding="5" BorderColor="Transparent">
+							<Frame.Triggers>
+								<DataTrigger TargetType="Frame" Binding="{Binding label}" Value="cheap">
+									<Setter Property="BackgroundColor" Value="#A5D6A7"/>
+								</DataTrigger>
+								<DataTrigger TargetType="Frame" Binding="{Binding label}" Value="expensive">
+									<Setter Property="BackgroundColor" Value="#EF9A9A"/>
+								</DataTrigger>
+								<DataTrigger TargetType="Frame" Binding="{Binding label}" Value="acceptable">
+									<Setter Property="BackgroundColor" Value="#FFE082"/>
+								</DataTrigger>
+							</Frame.Triggers>
+							<Grid ColumnDefinitions=".30*, .80*">
+								<Label Text="{Binding hour, Converter={StaticResource HourFormatConverter}}" Grid.Column="0" HorizontalOptions="Start" VerticalOptions="Center" FontSize="15.5" TextColor="Black"/>
+								<Label Text="{Binding price, Converter={StaticResource PriceFormatConverter}}" Grid.Column="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Center" FontSize="18" FontAttributes="Bold" TextColor="Black"/>
+							</Grid>
+						</Frame>
+					</Grid>
+				</DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Crear un collectionvie para cada fila y la segunda columna -->
+		<CollectionView Grid.Row="0" Grid.Column="1" ItemsSource="{Binding DatapvpcPM}">
+			<CollectionView.ItemTemplate>
+				<DataTemplate x:DataType="model:Datapvpc">
+					<Grid Padding="1.7">
+						<Frame HeightRequest="50" Padding="5" BorderColor="Transparent">
+							<Frame.Triggers>
+								<DataTrigger TargetType="Frame" Binding="{Binding label}" Value="cheap">
+									<Setter Property="BackgroundColor" Value="#A5D6A7"/>
+								</DataTrigger>
+								<DataTrigger TargetType="Frame" Binding="{Binding label}" Value="expensive">
+									<Setter Property="BackgroundColor" Value="#EF9A9A"/>
+								</DataTrigger>
+								<DataTrigger TargetType="Frame" Binding="{Binding label}" Value="acceptable">
+									<Setter Property="BackgroundColor" Value="#FFE082"/>
+								</DataTrigger>
+							</Frame.Triggers>
+							<Grid ColumnDefinitions=".30*, .80*">
+								<Label Text="{Binding hour, Converter={StaticResource HourFormatConverter}}" Grid.Column="0" HorizontalOptions="Start" VerticalOptions="Center" FontSize="15.5" TextColor="Black"/>
+								<Label Text="{Binding price, Converter={StaticResource PriceFormatConverter}}" Grid.Column="1" HorizontalOptions="CenterAndExpand" VerticalOptions="Center" FontSize="18" FontAttributes="Bold" TextColor="Black"/>
+							</Grid>
+						</Frame>
+					</Grid>
+				</DataTemplate>
+			</CollectionView.ItemTemplate>
+		</CollectionView>
+
+		<!-- Crear un botón con el texto "Guardar" y añadirlo a la última fila y primera columna -->
+		<Button Text="Termostato" Grid.Row="1" Grid.ColumnSpan="2" HorizontalOptions="Center" FontAttributes="Bold" TextColor="Black" BackgroundColor="#90A4AE" BorderColor="Black" BorderWidth="1"/>
+
+		<ActivityIndicator IsVisible="{Binding IsBusy}"
+						   IsRunning="{Binding IsBusy}"
+						   HorizontalOptions="FillAndExpand"
+						   VerticalOptions="CenterAndExpand"
+						   Grid.RowSpan="2"
+						   Grid.ColumnSpan="2"/>
+	</Grid>
+</ContentPage>
