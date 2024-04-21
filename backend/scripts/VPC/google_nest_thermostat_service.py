@@ -20,7 +20,7 @@ db_config = {
     'host': os.getenv('DB_HOST'),
     'database': os.getenv('DB_NAME')
 }
-automantic_mode = False
+automatic_mode = False
 temperature = 0
 thermostatMode = ''
 url_service_automatic = os.getenv('URL_SERVICE_AUTOMATIC')
@@ -47,9 +47,9 @@ def create_s3_client():
         aws_session_token=credentials['SessionToken']
     )
 
+
 def fetch_data_from_s3():
-    global light_data_by_hour
-    s3_client = boto3.client('s3')
+    global light_data_by_hour, s3_client
     response = s3_client.get_object(Bucket=os.getenv('S3_BUCKET_NAME'), Key=os.getenv('S3_KEY'))
     content = response['Body'].read().decode('utf-8')
     data = json.loads(content)
@@ -78,8 +78,8 @@ def authenticate():
 
 @app.route('/modeAutomatic', methods=['PUT'])
 def automatic_mode():
-    global automantic_mode, url_service_automatic, light_data_by_hour
-    automantic_mode = True
+    global automatic_mode, url_service_automatic, light_data_by_hour
+    automatic_mode = True
     temperature = request.json.get('temperature')
     thermostatMode = request.json.get('thermostatMode')
 
@@ -103,7 +103,7 @@ def automatic_mode():
 ## Actualizar datos del modo automatico
 @app.route('/updateDataModeAutomatic', methods=['POST'])
 def update_data_mode_automatic():
-    global automantic_mode, temperature, thermostatMode, url_service_automatic, light_data_by_hour
+    global automatic_mode, temperature, thermostatMode, url_service_automatic, light_data_by_hour
     temperature = request.json.get('temperature')
     thermostatMode = request.json.get('thermostatMode')
 
@@ -125,8 +125,8 @@ def update_data_mode_automatic():
 
 @app.route('/modeManual', methods=['PUT'])
 def manual_mode():
-    global automantic_mode, url_service_automatic
-    automantic_mode = False
+    global automatic_mode, url_service_automatic
+    automatic_mode = False
     try:
         response = requests.post(url_service_automatic + '/controlMode', json={'mode': False})
         if response.status_code == 200:
@@ -155,7 +155,7 @@ def process_data():
     
 @app.route('/turnOff', methods=['POST'])
 def turn_off():
-    if automantic_mode:
+    if automatic_mode:
         try:
             response = requests.post(url_service_automatic + '/controlMode', json={'mode': False})
             if response.status_code == 200:
@@ -178,4 +178,4 @@ if __name__ == '__main__':
     from threading import Thread
     t = Thread(target=run_schedule)
     t.start()
-    app.run(host='127.0.0.1', port=8000, debug=True)
+    app.run(host='127.0.0.1', port=5000, debug=True)
