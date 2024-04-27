@@ -423,4 +423,70 @@
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
 
+
+	<!-- Estilos de Botones -->
+	<Style x:Key="ToggleButtonStyle" TargetType="Button">
+		<Setter Property="BackgroundColor" Value="Red" />
+		<Setter Property="TextColor" Value="White" />
+		<Setter Property="BorderWidth" Value="1" />
+		<Setter Property="CornerRadius" Value="20" />
+		<Setter Property="HeightRequest" Value="40" />
+		<Setter Property="Margin" Value="5"/>
+	</Style>
+
+	<Style x:Key="ModeButtonStyle" TargetType="Button">
+		<Setter Property="BackgroundColor" Value="LightGray" />
+		<Setter Property="TextColor" Value="Black" />
+		<Setter Property="BorderWidth" Value="1" />
+		<Setter Property="CornerRadius" Value="20" />
+		<Setter Property="HeightRequest" Value="40" />
+		<Setter Property="Margin" Value="5"/>
+	</Style>
+
+	<Style x:Key="CircleButtonStyle" TargetType="Button">
+		<Setter Property="BackgroundColor" Value="Red" />
+		<Setter Property="TextColor" Value="White" />
+		<Setter Property="WidthRequest" Value="60" />
+		<Setter Property="HeightRequest" Value="60" />
+		<Setter Property="CornerRadius" Value="30" />
+		<Setter Property="Margin" Value="5"/>
+	</Style>
+
+	<!-- Estilo para el indicador de temperatura -->
+	<Style x:Key="TemperatureIndicatorStyle" TargetType="Frame">
+		<Setter Property="BackgroundColor" Value="Transparent" />
+		<Setter Property="BorderColor" Value="#1E1E1E" />
+		<Setter Property="HeightRequest" Value="200" />
+		<Setter Property="WidthRequest" Value="200" />
+		<Setter Property="CornerRadius" Value="100" />
+		<Setter Property="HasShadow" Value="False" />
+		<Setter Property="HorizontalOptions" Value="Center" />
+		<Setter Property="VerticalOptions" Value="CenterAndExpand" />
+	</Style>
+
+	<Style x:Key="TemperatureValueStyle" TargetType="Label">
+		<Setter Property="TextColor" Value="White" />
+		<Setter Property="BackgroundColor" Value="#007ACC" />
+		<Setter Property="HeightRequest" Value="50" />
+		<Setter Property="WidthRequest" Value="100" />
+		<Setter Property="Margin" Value="0, 20, 0, 0"/>
+		<Setter Property="FontAttributes" Value="Bold" />
+		<Setter Property="FontSize" Value="30" />
+		<Setter Property="HorizontalTextAlignment" Value="Center" />
+		<Setter Property="VerticalTextAlignment" Value="Center" />
+	</Style>
+
+	<Style x:Key="TemperatureLabelStyle" TargetType="Label">
+		<Setter Property="TextColor" Value="White" />
+		<Setter Property="Margin" Value="0, -25, 0, 0"/>
+		<Setter Property="HorizontalTextAlignment" Value="Center" />
+		<Setter Property="VerticalTextAlignment" Value="Center" />
+	</Style>
+
+	<!-- Estilo para el Switch -->
+	<Style x:Key="SwitchStyle" TargetType="Switch">
+		<Setter Property="OnColor" Value="Black" />
+		<Setter Property="ThumbColor" Value="White" />
+	</Style>
+
 </ResourceDictionary>

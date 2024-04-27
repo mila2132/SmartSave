@@ -1,11 +1,74 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="SmartSave.View.ThermostatPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
-</ContentView>
+			 xmlns:viewModel="clr-namespace:SmartSave.ViewModel"
+			 x:DataType="viewModel:ThermostatViewModel"
+			 Title="{Binding Title}" 
+			 BackgroundColor="#F5F5F6"
+             x:Class="SmartSave.View.ThermostatPage"
+			 Shell.NavBarIsVisible="true"
+             >
+	
+	<StackLayout Orientation="Vertical"
+				 >
+		<Grid VerticalOptions="Start"
+			  ColumnDefinitions="25*,75*"
+			  ColumnSpacing="0"
+			  RowDefinitions="50*,50*"
+			  Padding="10">
+			<Button Text="OFF"
+                    Grid.Column="0"
+                    Style="{StaticResource CircleButtonStyle}" />
+			<Button Text="Manual"
+                    Grid.Column="1"
+                    Style="{StaticResource ModeButtonStyle}" 
+					IsVisible="{Binding IsManual}"/>
+			<Button Text="Automatico"
+                    Grid.Column="1"
+                    Style="{StaticResource ModeButtonStyle}"
+                    IsVisible="{Binding IsAutomatic}"/>
+		</Grid>
+
+		<!-- Indicador de temperatura actual -->
+		<Frame CornerRadius="100"
+               HorizontalOptions="Center"
+               VerticalOptions="CenterAndExpand">
+			<Label Text="20 °C"
+                   FontSize="Large"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"/>
+		</Frame>
+
+		<!-- Controles de Temperatura -->
+		<Grid VerticalOptions="End"
+			  ColumnDefinitions="50*,50*"
+			  RowDefinitions="20*,60*"
+			  Padding="20"
+			  RowSpacing="10">
+			<Label Text="Modo: FRIO"
+                   Grid.Column="0"
+				   Grid.Row="0"
+				   HorizontalOptions="CenterAndExpand"/>
+			<Switch Grid.Column="0"
+					Grid.Row="1"
+                    HorizontalOptions="CenterAndExpand"
+                    Scale="2"/>
+			<Label Text="Temperatura °C"
+                   Grid.Column="1"
+				   Grid.Row="0"
+				   HorizontalOptions="CenterAndExpand"/>
+			<!--Crear un frame con un entry dentro para poner numeros-->
+			<Frame Grid.Column="1"
+				   Grid.Row="1"
+				   CornerRadius="20"
+				   HorizontalOptions="CenterAndExpand"
+				   VerticalOptions="CenterAndExpand">
+				<Entry Text="20"
+					   FontSize="20"
+					   Keyboard="Numeric"
+					   HorizontalTextAlignment="Center"
+					   VerticalTextAlignment="Center"/>
+			</Frame>
+		</Grid>
+	</StackLayout>
+</ContentPage>

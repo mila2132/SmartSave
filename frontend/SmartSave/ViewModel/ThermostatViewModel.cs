@@ -6,7 +6,19 @@ using System.Threading.Tasks;
 
 namespace SmartSave.ViewModel
 {
-    internal class ThermostatViewModel
-    {
-    }
+	public partial class ThermostatViewModel : BaseViewModel
+	{
+		public ThermostatViewModel()
+		{
+			Title = "Termostato";
+		}
+
+		[ObservableProperty]
+		[NotifyPropertyChangedFor(nameof(IsAutomatic))]
+		bool isManual;
+
+		public bool IsAutomatic => !IsManual;
+
+	}
+
 }

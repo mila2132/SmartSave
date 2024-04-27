@@ -1,5 +1,6 @@
 ﻿using SmartSave.Model;
 using SmartSave.Services;
+using SmartSave.View;
 
 namespace SmartSave.ViewModel
 {
@@ -21,6 +22,20 @@ namespace SmartSave.ViewModel
 		}
 
 		[RelayCommand]
+		async Task GoToThermostatPage()
+		{
+			try
+			{
+				await Shell.Current.GoToAsync($"{nameof(ThermostatPage)}");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
+			}
+
+		}
+
+
         async Task GetDatapvpcsAsync()
         {
 			if (IsBusy)
@@ -30,23 +45,25 @@ namespace SmartSave.ViewModel
 				IsBusy = true;
 
 				var data = await PvpcService.GetDatapvpcs();
-				if (DatapvpcAM.Count != 0 && DatapvpcPM.Count != 0)
+
+				if (data.TryGetValue("AM", out List<Datapvpc> dataAM))
 				{
 					DatapvpcAM.Clear();
+					foreach (var datapvpcam in dataAM)
+					{
+						DatapvpcAM.Add(datapvpcam);
+					}
+				}
+
+				if (data.TryGetValue("PM", out List<Datapvpc> dataPM))
+				{
 					DatapvpcPM.Clear();
+					foreach (var datapvpcpm in dataPM)
+					{
+						DatapvpcPM.Add(datapvpcpm);
+					}
 				}
 
-				data.TryGetValue("AM", out List<Datapvpc> dataAM);
-				foreach (var datapvpcam in dataAM)
-				{
-					DatapvpcAM.Add(datapvpcam);
-				}
-
-				data.TryGetValue("PM", out List<Datapvpc> dataPM);
-				foreach (var time in dataPM)
-				{
-					DatapvpcPM.Add(time);
-				}
 			}
 			catch (Exception ex)
 			{
@@ -61,22 +78,22 @@ namespace SmartSave.ViewModel
 
 		private void InitializeTimer()
 		{
-			/*
 			var now = DateTime.Now;
-			var midnightTonight = now.Date.AddDays(1);
-			var targetTimeTonight = midnightTonight.AddMinutes(-1);  //23:59
-			var dueTime = targetTimeTonight - now;
-			timer = new Timer(ExecutePeriodicTask, null, dueTime, TimeSpan.FromDays(1));
-			*/
+			var midnightTonight = now.Date.AddDays(1);  
+			var initialInterval = midnightTonight - now; 
 
-			// crear un timer que se ejecute cada 5 minutos
-			timer = new Timer(ExecutePeriodicTask, null, TimeSpan.Zero, TimeSpan.FromMinutes(2));
+			var dueTime = Convert.ToInt32(initialInterval.TotalMilliseconds);
+			var period = 86400000; 
+
+			timer = new Timer(ExecutePeriodicTask, null, dueTime, period);
+
 		}
 
 		private void ExecutePeriodicTask(object state)
 		{
-			GetDatapvpcsAsync();
+			Task.Run(async () => await GetDatapvpcsAsync()).Wait();
 		}
+
 
 	}
 }

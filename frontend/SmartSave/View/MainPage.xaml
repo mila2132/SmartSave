@@ -70,7 +70,12 @@
 		</CollectionView>
 
 		<!-- Crear un botón con el texto "Guardar" y añadirlo a la última fila y primera columna -->
-		<Button Text="Termostato" Grid.Row="1" Grid.ColumnSpan="2" HorizontalOptions="Center" FontAttributes="Bold" TextColor="Black" BackgroundColor="#90A4AE" BorderColor="Black" BorderWidth="1"/>
+		<Button Text="Termostato" 
+				Grid.Row="1" Grid.ColumnSpan="2" 
+				HorizontalOptions="Center" 
+				FontAttributes="Bold" TextColor="Black" 
+				BackgroundColor="#90A4AE" BorderColor="Black" BorderWidth="1"
+				Command="{Binding GoToThermostatPageCommand}"/>
 
 		<ActivityIndicator IsVisible="{Binding IsBusy}"
 						   IsRunning="{Binding IsBusy}"
