@@ -9,4 +9,5 @@ public partial class MainPage : ContentPage
 		InitializeComponent();
 		BindingContext = mainViewModel;
 	}
+
 }

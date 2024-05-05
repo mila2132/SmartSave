@@ -1,26 +1,48 @@
 ﻿using SmartSave.Model;
 using SmartSave.Services;
+using SmartSave.View;
+using SmartSave.View.PopUps;
+using CommunityToolkit.Maui.Views;
+using Newtonsoft.Json;
 
 namespace SmartSave.ViewModel
 {
     public partial class MainViewModel : BaseViewModel
     {
-		PvpcService PvpcService;
+		private readonly IServiceProvider _serviceProvider;
+		PvpcService _pvpcService;
 
 		private Timer timer;
+		private bool _isAuthenticated = false;
 
 		public ObservableCollection<Datapvpc> DatapvpcAM { get; } = new();
 		public ObservableCollection<Datapvpc> DatapvpcPM { get; } = new();
 
-        public MainViewModel(PvpcService pvpcService)
+        public MainViewModel(PvpcService pvpcService, IServiceProvider serviceProvider)
         {
 			Title = "Precio Luz hora";
-			this.PvpcService = pvpcService;
+			_serviceProvider = serviceProvider;
+			_pvpcService = pvpcService;
 			InitializeTimer();
 			GetDatapvpcsAsync();
 		}
 
 		[RelayCommand]
+		private async void OpenEmailAthenticate()
+		{
+			if (IsBusy)
+				return;
+			if (_isAuthenticated)
+			{
+				await Shell.Current.GoToAsync(nameof(ThermostatPage));
+				return;
+			}
+			var popup = _serviceProvider.GetRequiredService<EmailAuthenticatePopup>();
+			var result = await Application.Current.MainPage.ShowPopupAsync(popup);
+			_isAuthenticated = (bool)result;
+		}
+
+
         async Task GetDatapvpcsAsync()
         {
 			if (IsBusy)
@@ -29,24 +51,26 @@ namespace SmartSave.ViewModel
             {
 				IsBusy = true;
 
-				var data = await PvpcService.GetDatapvpcs();
-				if (DatapvpcAM.Count != 0 && DatapvpcPM.Count != 0)
+				var data = await _pvpcService.GetDatapvpcs();
+
+				if (data.TryGetValue("AM", out List<Datapvpc> dataAM))
 				{
 					DatapvpcAM.Clear();
+					foreach (var datapvpcam in dataAM)
+					{
+						DatapvpcAM.Add(datapvpcam);
+					}
+				}
+
+				if (data.TryGetValue("PM", out List<Datapvpc> dataPM))
+				{
 					DatapvpcPM.Clear();
+					foreach (var datapvpcpm in dataPM)
+					{
+						DatapvpcPM.Add(datapvpcpm);
+					}
 				}
 
-				data.TryGetValue("AM", out List<Datapvpc> dataAM);
-				foreach (var datapvpcam in dataAM)
-				{
-					DatapvpcAM.Add(datapvpcam);
-				}
-
-				data.TryGetValue("PM", out List<Datapvpc> dataPM);
-				foreach (var time in dataPM)
-				{
-					DatapvpcPM.Add(time);
-				}
 			}
 			catch (Exception ex)
 			{
@@ -61,21 +85,20 @@ namespace SmartSave.ViewModel
 
 		private void InitializeTimer()
 		{
-			/*
 			var now = DateTime.Now;
-			var midnightTonight = now.Date.AddDays(1);
-			var targetTimeTonight = midnightTonight.AddMinutes(-1);  //23:59
-			var dueTime = targetTimeTonight - now;
-			timer = new Timer(ExecutePeriodicTask, null, dueTime, TimeSpan.FromDays(1));
-			*/
+			var midnightTonight = now.Date.AddDays(1);  
+			var initialInterval = midnightTonight - now; 
 
-			// crear un timer que se ejecute cada 5 minutos
-			timer = new Timer(ExecutePeriodicTask, null, TimeSpan.Zero, TimeSpan.FromMinutes(2));
+			var dueTime = Convert.ToInt32(initialInterval.TotalMilliseconds);
+			var period = 86400000; 
+
+			timer = new Timer(ExecutePeriodicTask, null, dueTime, period);
+
 		}
 
 		private void ExecutePeriodicTask(object state)
 		{
-			GetDatapvpcsAsync();
+			Task.Run(async () => await GetDatapvpcsAsync()).ConfigureAwait(false);
 		}
 
 	}

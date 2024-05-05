@@ -1,10 +1,13 @@
-﻿using Amazon.CognitoIdentity;
+﻿using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SmartSave.Services;
 using SmartSave.View;
 using SmartSave.ViewModel;
 using System.Reflection;
+using CommunityToolkit.Maui;
+using SmartSave.ViewModel.PopUps;
+using SmartSave.View.PopUps;
 
 namespace SmartSave
 {
@@ -24,21 +27,34 @@ namespace SmartSave
 			// añadir appsettings.json a la configuración en una aplicación de Maui
 			builder.Configuration.AddConfiguration(configuration);
 
-			builder
+            builder
                 .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
+				.UseMauiCommunityToolkit()
+				.ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
+                
 
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
             builder.Services.AddSingleton<PvpcService>();
-            builder.Services.AddSingleton<MainViewModel>();
-            builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddSingleton<GoogleNestThermostatService>();
 
+			builder.Services.AddTransient<MainViewModel>();
+			builder.Services.AddTransient<MainPage>();
+
+			builder.Services.AddSingleton<ThermostatViewModel>();
+			builder.Services.AddTransient<ThermostatPage>();
+
+            
+			builder.Services.AddTransient<AutomaticModeViewModel>();
+			builder.Services.AddTransient<AutomaticModePopup>();
+
+            builder.Services.AddTransient<EmailAuthenticateViewModel>();
+			builder.Services.AddTransient<EmailAuthenticatePopup>();
 
 			return builder.Build();
         }
