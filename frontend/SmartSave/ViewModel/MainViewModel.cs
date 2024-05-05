@@ -1,38 +1,45 @@
 ﻿using SmartSave.Model;
 using SmartSave.Services;
 using SmartSave.View;
+using SmartSave.View.PopUps;
+using CommunityToolkit.Maui.Views;
+using Newtonsoft.Json;
 
 namespace SmartSave.ViewModel
 {
     public partial class MainViewModel : BaseViewModel
     {
-		PvpcService PvpcService;
+		private readonly IServiceProvider _serviceProvider;
+		PvpcService _pvpcService;
 
 		private Timer timer;
+		private bool _isAuthenticated = false;
 
 		public ObservableCollection<Datapvpc> DatapvpcAM { get; } = new();
 		public ObservableCollection<Datapvpc> DatapvpcPM { get; } = new();
 
-        public MainViewModel(PvpcService pvpcService)
+        public MainViewModel(PvpcService pvpcService, IServiceProvider serviceProvider)
         {
 			Title = "Precio Luz hora";
-			this.PvpcService = pvpcService;
+			_serviceProvider = serviceProvider;
+			_pvpcService = pvpcService;
 			InitializeTimer();
 			GetDatapvpcsAsync();
 		}
 
 		[RelayCommand]
-		async Task GoToThermostatPage()
+		private async void OpenEmailAthenticate()
 		{
-			try
+			if (IsBusy)
+				return;
+			if (_isAuthenticated)
 			{
-				await Shell.Current.GoToAsync($"{nameof(ThermostatPage)}");
+				await Shell.Current.GoToAsync(nameof(ThermostatPage));
+				return;
 			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex.Message);
-			}
-
+			var popup = _serviceProvider.GetRequiredService<EmailAuthenticatePopup>();
+			var result = await Application.Current.MainPage.ShowPopupAsync(popup);
+			_isAuthenticated = (bool)result;
 		}
 
 
@@ -44,7 +51,7 @@ namespace SmartSave.ViewModel
             {
 				IsBusy = true;
 
-				var data = await PvpcService.GetDatapvpcs();
+				var data = await _pvpcService.GetDatapvpcs();
 
 				if (data.TryGetValue("AM", out List<Datapvpc> dataAM))
 				{
@@ -91,9 +98,8 @@ namespace SmartSave.ViewModel
 
 		private void ExecutePeriodicTask(object state)
 		{
-			Task.Run(async () => await GetDatapvpcsAsync()).Wait();
+			Task.Run(async () => await GetDatapvpcsAsync()).ConfigureAwait(false);
 		}
-
 
 	}
 }

@@ -7,6 +7,7 @@ import mysql.connector
 import json
 import schedule
 import time
+from threading import Thread
 
 load_dotenv()
 
@@ -25,6 +26,7 @@ temperature = 0
 thermostatMode = ''
 url_service_automatic = os.getenv('URL_SERVICE_AUTOMATIC')
 s3_client = None
+isAutomaticService = False
 
 def create_s3_client():
     global s3_client
@@ -61,7 +63,7 @@ schedule.every().day.at("00:00").do(fetch_data_from_s3)
 def authenticate():
     email = request.json.get('email')
     if not email:
-        return jsonify({'ok': False, 'message': 'Email is required'}), 400
+        return jsonify({'result': False, 'message': 'Email is required'}), 400
 
     try:
         cnx = mysql.connector.connect(**db_config)
@@ -71,13 +73,13 @@ def authenticate():
         result = cursor.fetchone()
         cursor.close()
         cnx.close()
-        return jsonify({'ok': bool(result)}), 200 if result else 404
+        return jsonify({'result': bool(result)}), 200 if result else 404
     except Exception as e:
-        return jsonify({'ok': False, 'message': str(e)}), 500
+        return jsonify({'result': False, 'message': str(e)}), 500
 
 
-@app.route('/modeAutomatic', methods=['PUT'])
-def automatic_mode():
+@app.route('/modeAutomatic', methods=['POST'])
+def active_automatic_mode():
     global automatic_mode, url_service_automatic, light_data_by_hour
     automatic_mode = True
     temperature = request.json.get('temperature')
@@ -92,14 +94,16 @@ def automatic_mode():
     # Enviar la petición POST al servicio de automatización
     try:
         response = requests.post(url_service_automatic + '/receiveData', json=data_to_send)
+        data = response.json()
+        responseService = data['message']
         if response.status_code == 200:
-            return jsonify({'ok': True, 'message': 'Automatic mode activated and data sent'}), 200
+            return jsonify({'result': True, 'message': 'Automatic mode activated and data sent', 'messageAutomaticService': responseService}), 200
         else:
-            return jsonify({'ok': False, 'message': 'Failed to send data to other service'}), 500
+            return jsonify({'result': False, 'message': 'Failed to send data to other service'}), 500
     except requests.exceptions.RequestException as e:
-        return jsonify({'ok': False, 'message': str(e)}), 500
+        return jsonify({'result': False, 'message': str(e)}), 500
 
-
+'''
 ## Actualizar datos del modo automatico
 @app.route('/updateDataModeAutomatic', methods=['POST'])
 def update_data_mode_automatic():
@@ -116,55 +120,61 @@ def update_data_mode_automatic():
     try:
         response = requests.post(url_service_automatic + '/updateDataModeAutomatic', json=data_to_send)
         if response.status_code == 200:
-            return jsonify({'ok': True, 'message': 'Data updated'}), 200
+            return jsonify({'result': True, 'message': 'Data updated'}), 200
         else:
-            return jsonify({'ok': False, 'message': 'Failed to send data to other service'}), 500
+            return jsonify({'result': False, 'message': 'Failed to send data to other service'}), 500
     except requests.exceptions.RequestException as e:
-        return jsonify({'ok': False, 'message': str(e)}), 500
+        return jsonify({'result': False, 'message': str(e)}), 500
+'''
 
-
-@app.route('/modeManual', methods=['PUT'])
+@app.route('/modeManual', methods=['GET'])
 def manual_mode():
     global automatic_mode, url_service_automatic
     automatic_mode = False
     try:
         response = requests.post(url_service_automatic + '/controlMode', json={'mode': False})
+        data = response.json()
+        responseService = data['message']
         if response.status_code == 200:
-            return jsonify({'ok': True, 'message': 'Manual mode activated'}), 200
+            return jsonify({'result': True, 'message': 'Manual mode activated', 'messageAutomaticService' : responseService }), 200
         else:
-            return jsonify({'ok': False, 'message': 'Failed to send data to other service'}), 500
+            return jsonify({'result': False, 'message': 'Failed to send data to other service'}), 500
     except requests.exceptions.RequestException as e:
-        return jsonify({'ok': False, 'message': str(e)}), 500
+        return jsonify({'result': False, 'message': str(e)}), 500
 
 
 @app.route('/updateTemperature', methods=['POST'])
 def process_data():
-    global thermostatMode
+    global thermostatMode, isAutomaticService, automatic_mode
     temperature = request.json.get('temperature')
     thermostatMode = request.json.get('thermostatMode')
-
-    if thermostatMode == 'Cool':
-        # Enviar petición a la API de Google Nest Thermostat para actualizar la temperatura de acuerdo al thermostatMode
-        return jsonify({'ok': True, 'message': 'Temperature updated'}), 200
-    elif thermostatMode == 'Heat':
-        # Enviar petición a la API de Google Nest Thermostat para actualizar la temperatura de acuerdo al thermostatMode
-        return jsonify({'ok': True, 'message': 'Temperature updated'}), 200
+    isAutomaticService = request.json.get('isAutomaticService', False) 
+    
+    if not automatic_mode or isAutomaticService:
+        if thermostatMode == 'Cool':
+            # Enviar petición a la API de Google Nest Thermostat para actualizar la temperatura de acuerdo al thermostatMode
+            return jsonify({'result': True, 'message': 'Temperature updated'}), 200
+        elif thermostatMode == 'Heat':
+            # Enviar petición a la API de Google Nest Thermostat para actualizar la temperatura de acuerdo al thermostatMode
+            return jsonify({'result': True, 'message': 'Temperature updated'}), 200
+        else:
+            return jsonify({'result': False, 'message': 'Invalid data'}), 400
     else:
-        return jsonify({'ok': False, 'message': 'Invalid data'}), 400
+        isAutomaticService = False
+        return jsonify({'result': False, 'message': 'Automatic mode is enabled'}), 403
     
     
-@app.route('/turnOff', methods=['POST'])
+@app.route('/turnOff', methods=['GET', 'POST'])
 def turn_off():
-    if automatic_mode:
-        try:
-            response = requests.post(url_service_automatic + '/controlMode', json={'mode': False})
-            if response.status_code == 200:
-                return jsonify({'ok': True, 'message': 'Thermostat turned off'}), 200
-            else:
-                return jsonify({'ok': False, 'message': 'Failed to send data to other service'}), 500
-        except requests.exceptions.RequestException as e:
-            return jsonify({'ok': False, 'message': str(e)}), 500
-    return jsonify({'ok': True, 'message': 'Thermostat turned off'}), 200
+    global isAutomaticService, automatic_mode
+    if request.method == 'POST':    
+        isAutomaticService = request.json.get('isAutomaticService')
+        
+    if not automatic_mode or isAutomaticService:
+        return jsonify({'result': True, 'message': 'Thermostat turned off'}), 200
+    else:
+        isAutomaticService = False
+        return jsonify({'result': False, 'message': 'Automatic mode is enabled'}), 403
     
     
 def run_schedule():
@@ -175,7 +185,6 @@ def run_schedule():
 if __name__ == '__main__':
     create_s3_client()
     fetch_data_from_s3()
-    from threading import Thread
     t = Thread(target=run_schedule)
     t.start()
     app.run(host='127.0.0.1', port=5000, debug=True)

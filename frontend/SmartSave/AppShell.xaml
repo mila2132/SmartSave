@@ -9,8 +9,8 @@
 
 	<ShellContent
         Title="Home"
-        ContentTemplate="{DataTemplate view:ThermostatPage}"
-        Route="ThermostatPage" />
+        ContentTemplate="{DataTemplate view:MainPage}"
+        Route="MainPage" />
 
 
 </Shell>

@@ -26,17 +26,17 @@ def receive_data():
         schedule.every().hour.at(":00").do(check_hourly_data)
         print("Scheduled job to check data every hour.")
 
-    return jsonify({'ok': True, 'message': 'Data received and automatic mode scheduled'}), 200
+    return jsonify({'result': True, 'message': 'Data received and automatic mode scheduled'}), 200
 
-
+'''
 @app.route('/updateDataModeAutomatic', methods=['POST'])
 def update_data_mode_automatic():
     global temperature, thermostatMode, light_data_by_hour
     temperature = request.json.get('temperature')
     thermostatMode = request.json.get('thermostatMode')
     light_data_by_hour = request.json.get('lightData')
-    return jsonify({'ok': True, 'message': 'Data updated'}), 200
-
+    return jsonify({'result': True, 'message': 'Data updated'}), 200
+'''
 
 def check_hourly_data():
     global active
@@ -49,11 +49,11 @@ def check_hourly_data():
     label = current_hour_data.get('label')
 
     if label == 'expensive':
-        requests.post(url_service + '/turnOff')
+        requests.post(url_service + '/turnOff', json={ 'isAutomaticService': True})
         print(f"TurnOff signal sent for hour {current_hour}")
     elif label == 'acceptable':
         # Enviar petición para actualizar temperatura
-        requests.post(url_service + '/updateTemperature', json={'temperature': temperature, 'thermostatMode': thermostatMode})
+        requests.post(url_service + '/updateTemperature', json={'temperature': temperature, 'thermostatMode': thermostatMode, 'isAutomaticService': True})
         print(f"Temperature update sent for hour {current_hour}")
 
 
@@ -62,7 +62,7 @@ def set_automatic_mode():
     global active
     mode = request.json.get('mode')  
     active = mode
-    return jsonify({'ok': True, 'message': f"Automatic mode set to {active}"}), 200
+    return jsonify({'result': True, 'message': f"Automatic mode set to {active}"}), 200
 
 
 def run_scheduler():
