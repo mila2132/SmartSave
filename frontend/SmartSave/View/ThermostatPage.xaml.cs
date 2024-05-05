@@ -1,9 +1,12 @@
+using SmartSave.ViewModel;
+
 namespace SmartSave.View;
 
-public partial class ThermostatPage : ContentView
+public partial class ThermostatPage : ContentPage
 {
-	public ThermostatPage()
+	public ThermostatPage(ThermostatViewModel thermostatViewModel)
 	{
 		InitializeComponent();
+		BindingContext = thermostatViewModel;
 	}
 }

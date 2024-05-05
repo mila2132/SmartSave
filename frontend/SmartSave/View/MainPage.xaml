@@ -2,8 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:SmartSave.Model"
-			 xmlns:mainviewmodel="clr-namespace:SmartSave.ViewModel"
-			 x:DataType="mainviewmodel:MainViewModel"
+			 xmlns:viewmodel="clr-namespace:SmartSave.ViewModel"
+			 x:DataType="viewmodel:MainViewModel"
 			 Title="{Binding Title}" 
              x:Class="SmartSave.View.MainPage"
 			 BackgroundColor="#F5F5F6">
@@ -70,7 +70,18 @@
 		</CollectionView>
 
 		<!-- Crear un botón con el texto "Guardar" y añadirlo a la última fila y primera columna -->
-		<Button Text="Termostato" Grid.Row="1" Grid.ColumnSpan="2" HorizontalOptions="Center" FontAttributes="Bold" TextColor="Black" BackgroundColor="#90A4AE" BorderColor="Black" BorderWidth="1"/>
+		<Button Text="Termostato" 
+				Grid.Row="1" Grid.ColumnSpan="2" 
+				HorizontalOptions="Center" 
+				FontAttributes="Bold" TextColor="Black" 
+				BackgroundColor="#84BDC7" 
+				Command="{Binding OpenEmailAthenticateCommand}">
+			<Button.Triggers>
+				<Trigger TargetType="Button" Property="IsPressed" Value="True">
+					<Setter Property="BackgroundColor" Value="#FF699198"/>
+				</Trigger>
+			</Button.Triggers>
+		</Button>
 
 		<ActivityIndicator IsVisible="{Binding IsBusy}"
 						   IsRunning="{Binding IsBusy}"
