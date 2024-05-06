@@ -26,7 +26,7 @@ namespace SmartSave.Services
 		{
 			_client = new MqttFactory().CreateMqttClient();
 			_options = new MqttClientOptionsBuilder()
-				.WithTcpServer("test.mosquitto.org", 1883)
+				.WithTcpServer(_configuration["GoogleNest:broker"], 1883)
 				.WithCleanSession()
 				.Build();
 			try
