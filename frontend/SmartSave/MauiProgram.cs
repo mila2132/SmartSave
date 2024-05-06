@@ -42,6 +42,7 @@ namespace SmartSave
 #endif
             builder.Services.AddSingleton<PvpcService>();
             builder.Services.AddSingleton<GoogleNestThermostatService>();
+            builder.Services.AddSingleton<TemperatureService>();
 
 			builder.Services.AddTransient<MainViewModel>();
 			builder.Services.AddTransient<MainPage>();

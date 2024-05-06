@@ -84,8 +84,8 @@
 			<Frame WidthRequest="100" HeightRequest="100" CornerRadius="100" Scale="0.885" Background="#6CB9C7" HasShadow="True">
 				<Grid RowDefinitions="0.8*,0.2*">
 					<Frame WidthRequest="50" HeightRequest="30" BackgroundColor="#FFFFFF">
-						<Label Text="20 °C"
-							   FontSize="Subtitle"
+						<Label Text="{Binding TemperatureMqtt}"
+							   FontSize="Small"
 							   TextColor="#000000"
 						   	   VerticalTextAlignment="Start" WidthRequest="44" HeightRequest="33"/>
 					</Frame>

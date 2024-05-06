@@ -3,10 +3,11 @@ import paho.mqtt.client as mqtt
 import time
 import random
 
-
-broker = os.getenv('MQTT_BROKER', 'localhost')
+##Modificacion del tiempo de publicacion y broker del script original para mostrar el cambio de temperatura en el frontend
+##broker = os.getenv('MQTT_BROKER', 'localhost')
+broker = 'test.mosquitto.org'
 port = int(os.getenv('MQTT_PORT', 1883))
-seconds = int(os.getenv('PUBLISH_INTERVAL', 3600))
+seconds = int(os.getenv('PUBLISH_INTERVAL', 10))
 topic = "nest/temperature"
 
 
@@ -26,7 +27,7 @@ def publish_temperature():
     while True:
         temp_change = random.uniform(-0.5, 0.5)
         current_temp = base_temp + temp_change
-        client.publish(topic, f"{current_temp:.2f}")
+        client.publish(topic, f"{current_temp:.2f}ºC")
         print(f"Published temperature: {current_temp:.2f}°C to {topic}")
         time.sleep(seconds)
 
