@@ -1,0 +1,12 @@
+FROM python:3.9-slim
+
+RUN apt-get update && apt-get install -y     
+
+WORKDIR /app
+
+## Instalar paho-mqtt version 1.6.1 para evitar problemas de compatibilidad con la actual version
+RUN pip install paho-mqtt==1.6.1
+
+COPY publish_temperature.py /app
+
+CMD ["python", "publish_temperature.py"]

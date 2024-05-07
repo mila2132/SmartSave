@@ -1,51 +1,48 @@
 from flask import Flask, request, jsonify
+from dotenv import load_dotenv
 import schedule
 import time
 import requests
 import os
 from threading import Thread
 
+load_dotenv()
 
 app = Flask(__name__)
 
-active = True
+active = False
 temperature = 0
 thermostatMode = ''
 light_data_by_hour = {}
 url_service = os.getenv('URL_SERVICE')
 
+
 @app.route('/receiveData', methods=['POST'])
 def receive_data():
-    global light_data_by_hour, temperature, thermostatMode
+    global light_data_by_hour, temperature, thermostatMode, active
     data = request.json
     temperature = request.json.get('temperature')
     thermostatMode = request.json.get('thermostatMode')
     light_data_by_hour = data.get('lightData', {})
-
+    active = True
+    
+    check_hourly_data()
     if not schedule.jobs:
         schedule.every().hour.at(":00").do(check_hourly_data)
         print("Scheduled job to check data every hour.")
 
     return jsonify({'result': True, 'message': 'Data received and automatic mode scheduled'}), 200
 
-'''
-@app.route('/updateDataModeAutomatic', methods=['POST'])
-def update_data_mode_automatic():
-    global temperature, thermostatMode, light_data_by_hour
-    temperature = request.json.get('temperature')
-    thermostatMode = request.json.get('thermostatMode')
-    light_data_by_hour = request.json.get('lightData')
-    return jsonify({'result': True, 'message': 'Data updated'}), 200
-'''
 
 def check_hourly_data():
-    global active
+    global active, url_service, light_data_by_hour
     if not active:
         print("Automatic mode is disabled.")
         return
 
-    current_hour = time.localtime().tm_hour
-    current_hour_data = light_data_by_hour[current_hour]
+    current_hour = time.localtime().tm_hour        
+    current_hour_str = str(current_hour)
+    current_hour_data = light_data_by_hour[current_hour_str]
     label = current_hour_data.get('label')
 
     if label == 'expensive':

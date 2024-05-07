@@ -12,6 +12,7 @@ namespace SmartSave.ViewModel
 	{
 		private readonly IServiceProvider _serviceProvider;
 		GoogleNestThermostatService _thermostatService;
+		TemperatureService _temperatureService;
 
 		[ObservableProperty]
 		[NotifyPropertyChangedFor(nameof(ModeText))]
@@ -24,27 +25,37 @@ namespace SmartSave.ViewModel
 		bool isOff;
 
 		[ObservableProperty]
-		private bool isAutomaticMode;
+		bool isAutomaticMode;
+
+		[ObservableProperty]
+		string temperatureMqtt;
 
 		public string ModeText => IsHeatMode ? "Mode: Heat" : "Mode: Cool";
 
-		public ThermostatViewModel(IServiceProvider serviceProvider, GoogleNestThermostatService thermostatService)
+		public ThermostatViewModel(IServiceProvider serviceProvider, GoogleNestThermostatService thermostatService, TemperatureService temperatureService)
 		{
 			Title = "Termostato";
 			_serviceProvider = serviceProvider;
 			_thermostatService = thermostatService;
+			_temperatureService = temperatureService;
 			IsOff = true;
 			IsAutomaticMode = false;
+			_temperatureService.SubscribeToTemperature();
+			MessagingCenter.Subscribe<TemperatureService, string>(this, "TemperatureUpdated", (sender, temp) =>
+			{
+				TemperatureMqtt = temp + "ºC";  
+			});
 		}
 
+
+		~ThermostatViewModel()
+		{
+			MessagingCenter.Unsubscribe<TemperatureService, string>(this, "TemperatureUpdated");
+		}
 
 		[RelayCommand]
 		private async void OpenAutomaticMode()
 		{
-			if (IsAutomaticMode)
-			{
-				return;
-			}
 			var popup = _serviceProvider.GetRequiredService<AutomaticModePopup>();
 			bool result = (bool)await Application.Current.MainPage.ShowPopupAsync(popup);
 			if (result)

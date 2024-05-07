@@ -103,29 +103,6 @@ def active_automatic_mode():
     except requests.exceptions.RequestException as e:
         return jsonify({'result': False, 'message': str(e)}), 500
 
-'''
-## Actualizar datos del modo automatico
-@app.route('/updateDataModeAutomatic', methods=['POST'])
-def update_data_mode_automatic():
-    global automatic_mode, temperature, thermostatMode, url_service_automatic, light_data_by_hour
-    temperature = request.json.get('temperature')
-    thermostatMode = request.json.get('thermostatMode')
-
-    data_to_send = {
-        'temperature': temperature,
-        'thermostatMode': thermostatMode,
-        'lightData': light_data_by_hour
-    }
-    
-    try:
-        response = requests.post(url_service_automatic + '/updateDataModeAutomatic', json=data_to_send)
-        if response.status_code == 200:
-            return jsonify({'result': True, 'message': 'Data updated'}), 200
-        else:
-            return jsonify({'result': False, 'message': 'Failed to send data to other service'}), 500
-    except requests.exceptions.RequestException as e:
-        return jsonify({'result': False, 'message': str(e)}), 500
-'''
 
 @app.route('/modeManual', methods=['GET'])
 def manual_mode():
@@ -171,6 +148,7 @@ def turn_off():
         isAutomaticService = request.json.get('isAutomaticService')
         
     if not automatic_mode or isAutomaticService:
+        isAutomaticService = False
         return jsonify({'result': True, 'message': 'Thermostat turned off'}), 200
     else:
         isAutomaticService = False
