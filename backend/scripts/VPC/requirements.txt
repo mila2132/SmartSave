@@ -1,0 +1,6 @@
+boto3
+requests
+Flask
+python-dotenv
+mysql-connector-python
+schedule
