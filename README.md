@@ -36,9 +36,9 @@ Crear las siguiente variables de entorno
 
 `DB_NAME`
 
-`AWS_REGION`=us-east-1
+`AWS_REGION`=''
 
-`COGNITO_IDENTITY_POOL_ID`=us-east-1:53701935-4dbf-4d23-890e-dc02f496e1d9
+`COGNITO_IDENTITY_POOL_ID`=''
 
 `S3_BUCKET_NAME`=pvpc
 
